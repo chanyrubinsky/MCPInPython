@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ה-CSS שלך נשאר בדיוק אותו דבר */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "DM Sans", sans-serif; background: #fff; color: #1a1a1a; height: 100vh; display: flex; flex-direction: column; }
+  .header { padding: 16px 16px 12px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 28px; height: 28px; background: #6C47FF; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; }
+  .logo-name { font-size: 13px; font-weight: 500; }
+  .logo-sub { font-size: 10px; color: #888; }
+  .body { padding: 14px 16px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .field-label { font-size: 10px; font-weight: 500; color: #888; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { padding: 4px 10px; border-radius: 20px; border: 1px solid #e0e0e0; font-size: 11px; cursor: pointer; background: #fff; color: #555; transition: all 0.12s; font-family: inherit; }
+  .chip:hover { border-color: #6C47FF; color: #6C47FF; }
+  .chip.active { background: #EDE9FF; border-color: #6C47FF; color: #4C2DB8; font-weight: 500; }
+  textarea { width: 100%; min-height: 90px; padding: 9px 11px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 12px; line-height: 1.6; resize: vertical; font-family: inherit; color: #1a1a1a; background: #fafafa; transition: border-color 0.15s; }
+  textarea:focus { outline: none; border-color: #6C47FF; background: #fff; }
+  .tone-row { display: flex; align-items: center; gap: 8px; }
+  .tone-label { font-size: 10px; color: #aaa; min-width: 32px; }
+  input[type=range] { flex: 1; accent-color: #6C47FF; }
+  .gen-btn { width: 100%; padding: 10px; background: #6C47FF; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .gen-btn:hover { background: #5533DD; }
+  .gen-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+  .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .result { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 11px; font-size: 12px; line-height: 1.7; display: none; white-space: pre-wrap; }
+  .result.show { display: block; animation: up 0.25s ease; }
+  @keyframes up { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform:translateY(0); } }
+  .result-btns { display: flex; gap: 5px; margin-top: 8px; }
+  .rbtn { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 11px; cursor: pointer; background: #fff; color: #555; transition: all 0.12s; font-family: inherit; }
+  .rbtn:hover { background: #f5f5f5; }
+  .rbtn.primary { background: #EDE9FF; border-color: #6C47FF; color: #4C2DB8; font-weight: 500; }
+  .rbtn.primary:hover { background: #DDD5FF; }
+  .divider { height: 1px; background: #f0f0f0; }
+  .status { padding: 8px 16px; background: #F0EEFF; border-top: 1px solid #E0D5FF; font-size: 10px; color: #5533DD; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: #6C47FF; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .error { font-size: 11px; color: #c00; padding: 6px 10px; background: #fff0f0; border-radius: 6px; display: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">✦</div>
+    <div>
+      <div class="logo-name">Style Assistant</div>
+      <div class="logo-sub">MCP · Gmail</div>
+    </div>
+  </div>
+</div>
+<div class="body">
+  <div>
+    <div class="field-label">סגנון כתיבה</div>
+    <div class="chips" id="styleChips">
+      <button class="chip active">מקצועי</button>
+      <button class="chip">חברותי</button>
+      <button class="chip">תמציתי</button>
+      <button class="chip">פורמלי</button>
+      <button class="chip">שכנועי</button>
+    </div>
+  </div>
+  <div>
+    <div class="field-label">טון</div>
+    <div class="tone-row">
+      <span class="tone-label">קשוח</span>
+      <input type="range" min="0" max="100" value="50" id="tone">
+      <span class="tone-label" style="text-align:right">חם</span>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div>
+    <div class="field-label">תוכן / נושא</div>
+    <textarea id="txt" placeholder="תארי את מטרת המייל..."></textarea>
+  </div>
+  <div class="error" id="err">לא ניתן להתחבר ל-MCP Server. וודאי שהוא פועל על localhost:5678</div>
+  <button class="gen-btn" id="genBtn">
+    <div class="spinner" id="sp"></div>
+    <span id="genLbl">✦ נסח מייל</span>
+  </button>
+  <div class="result" id="result">
+    <div id="resultText"></div>
+    <div class="result-btns">
+      <button class="rbtn" id="copyBtn">העתק</button>
+      <button class="rbtn" id="retryBtn">שוב</button>
+      <button class="rbtn primary" id="insertBtn">הכנס למייל ↗</button>
+    </div>
+  </div>
+</div>
+<div class="status"><div class="dot"></div>MCP · localhost:5678</div>
+
+<!-- שימוש בקובץ הלוגיקה של הסיידבר -->
+<script src="sidebar.js"></script>
+</body>
+</html>

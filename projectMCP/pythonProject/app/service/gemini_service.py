@@ -1,3 +1,24 @@
+import os
+import ssl
+
+# ביטול אימות תעודות SSL עבור ספריות שמשתמשות ב-certifi
+os.environ['CURL_CA_BUNDLE'] = ""
+os.environ['PYTHONHTTPSVERIFY'] = '0'
+
+# הגדרה ספציפית עבור נטפרי (אם התעודה מותקנת בנתיב הסטנדרטי)
+os.environ['GRPC_DEFAULT_SSL_ROOTS_FILEPATH_ENV_VAR'] = r"C:\ProgramData\NetFree\CA\netfree-ca.crt"
+
+# עקיפת אימות גלובלית (לצורכי פיתוח)
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+
+
+
 import google.generativeai as genai
 import os
 
@@ -32,6 +53,7 @@ async def draft_letter(text: str, style: LetterStyle, add_emojis: bool) -> str:
         Rewrites a letter based on provided content and style.
         Styles available: Formal (רשמי), Rhymed (מחורז), Technical (תכני), Friendly (חברי).
         """
+        print(f"\n--- DEBUG: Function started! Style: {style} ---")
         if not limiter.hit(limit, "user_identifier"):
             return "שגיאה: הגעת למכסת הבקשות המותרת. נסה שוב בעוד דקה."
 
